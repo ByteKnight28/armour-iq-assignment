@@ -1,4 +1,4 @@
-import { encrypt, decrypt, logAccess, loadStore, saveStore } from "./vault.js";
+import { encrypt, decrypt, loadStore, saveStore } from "./vault.js";
 
 export function storeSecret({ name, value, description = "" }) {
     const store = loadStore();
@@ -12,8 +12,8 @@ export function storeSecret({ name, value, description = "" }) {
         rotatedAt:   null,
         history:     []
     };
+    store.auditLog.push({ secretName: name, action: "STORE", timestamp: new Date().toISOString() });
     saveStore(store);
-    logAccess(name, "STORE");
     return { success: true, message: `Secret '${name}' stored and encrypted successfully.` };
 }
 
@@ -22,7 +22,8 @@ export function retrieveSecret({ name }) {
     const secret = store.secrets[name];
     if (!secret) return { success: false, error: `Secret '${name}' not found.` };
     const value = decrypt(secret.encrypted);
-    logAccess(name, "RETRIEVE");
+    store.auditLog.push({ secretName: name, action: "RETRIEVE", timestamp: new Date().toISOString() });
+    saveStore(store);
     return { success: true, name, value, description: secret.description, createdAt: secret.createdAt };
 }
 
@@ -33,8 +34,8 @@ export function rotateSecret({ name, new_value }) {
     secret.history.push({ encrypted: secret.encrypted, rotatedAt: new Date().toISOString() });
     secret.encrypted  = encrypt(new_value);
     secret.rotatedAt  = new Date().toISOString();
+    store.auditLog.push({ secretName: name, action: "ROTATE", timestamp: new Date().toISOString() });
     saveStore(store);
-    logAccess(name, "ROTATE");
     return { success: true, message: `Secret '${name}' rotated. Previous version archived in history.` };
 }
 
@@ -49,7 +50,7 @@ export function revokeSecret({ name }) {
     const store = loadStore();
     if (!store.secrets[name]) return { success: false, error: `Secret '${name}' not found.` };
     delete store.secrets[name];
+    store.auditLog.push({ secretName: name, action: "REVOKE", timestamp: new Date().toISOString() });
     saveStore(store);
-    logAccess(name, "REVOKE");
     return { success: true, message: `Secret '${name}' permanently revoked and deleted.` };
 }

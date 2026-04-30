@@ -1,10 +1,10 @@
 {
   "name": "custom-mcp-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "SecretVault MCP Server — AES-256-GCM encrypted secret management",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",

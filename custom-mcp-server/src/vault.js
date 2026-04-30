@@ -1,13 +1,22 @@
 import crypto from "crypto";
 import { readFileSync, writeFileSync, existsSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const STORE_PATH = "./src/store.json";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const STORE_PATH = path.join(__dirname, "store.json");
 const ALGORITHM  = "aes-256-gcm";
-const KEY        = crypto.scryptSync(process.env.VAULT_KEY ?? "default-dev-key", "salt", 32);
+const SALT       = "armouriq-secretvault-v1";
+const KEY        = crypto.scryptSync(process.env.VAULT_KEY ?? "default-dev-key", SALT, 32);
 
 function loadStore() {
     if (!existsSync(STORE_PATH)) return { secrets: {}, auditLog: [] };
-    return JSON.parse(readFileSync(STORE_PATH, "utf-8"));
+    try {
+        return JSON.parse(readFileSync(STORE_PATH, "utf-8"));
+    } catch {
+        // If store.json is corrupted, start fresh
+        return { secrets: {}, auditLog: [] };
+    }
 }
 
 function saveStore(store) {
@@ -36,12 +45,6 @@ export function decrypt(encryptedObj) {
         decipher.final()
     ]);
     return decrypted.toString("utf8");
-}
-
-export function logAccess(secretName, action) {
-    const store = loadStore();
-    store.auditLog.push({ secretName, action, timestamp: new Date().toISOString() });
-    saveStore(store);
 }
 
 export { loadStore, saveStore };

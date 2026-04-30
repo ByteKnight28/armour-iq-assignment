@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { Shield, Activity } from 'lucide-react'
 import Dashboard from './pages/Dashboard.jsx'
@@ -5,6 +6,7 @@ import Logs from './pages/Logs.jsx'
 
 function App() {
   const location = useLocation();
+  const [chatMessages, setChatMessages] = useState([]);
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 flex font-sans selection:bg-indigo-500/30">
@@ -47,7 +49,7 @@ function App() {
       {/* Main Content */}
       <main className="flex-1 overflow-auto bg-gradient-to-br from-neutral-950 to-neutral-900">
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard chatMessages={chatMessages} setChatMessages={setChatMessages} />} />
           <Route path="/logs" element={<Logs />} />
         </Routes>
       </main>

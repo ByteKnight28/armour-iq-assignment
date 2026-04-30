@@ -1,17 +1,20 @@
 import { createClient } from "@supabase/supabase-js";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 class PolicyEngine {
     constructor() {
         this.rules    = new Map();
-        this.supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+        this.supabase = null;
     }
 
     async init() {
+        this.supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+
         // Load all rules from DB on startup
-        const { data } = await this.supabase.from("policies").select("*");
+        const { data, error } = await this.supabase.from("policies").select("*");
+        if (error) {
+            console.error(`[PolicyEngine] Failed to load policies: ${error.message}`);
+            return;
+        }
         if (data) {
             data.forEach(row => this.rules.set(row.tool_name, row));
         }

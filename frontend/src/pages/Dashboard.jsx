@@ -3,7 +3,7 @@ import PolicyToggle from '../components/PolicyToggle.jsx'
 import ChatWindow from '../components/ChatWindow.jsx'
 import ApprovalQueue from '../components/ApprovalQueue.jsx'
 
-export default function Dashboard() {
+export default function Dashboard({ chatMessages, setChatMessages }) {
   return (
     <div className="p-8 max-w-7xl mx-auto flex flex-col gap-8">
       <header>
@@ -40,7 +40,7 @@ export default function Dashboard() {
                 Secure Terminal
               </h2>
             </div>
-            <ChatWindow />
+            <ChatWindow messages={chatMessages} setMessages={setChatMessages} />
           </section>
         </div>
       </div>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { ShieldAlert, ShieldCheck, Clock } from 'lucide-react'
 
 export default function PolicyToggle() {
   const [policies, setPolicies] = useState([])
@@ -11,7 +10,7 @@ export default function PolicyToggle() {
 
     const subscription = supabase
       .channel('policy_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'policies' }, (payload) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'policies' }, () => {
         fetchPolicies()
       })
       .subscribe()
@@ -23,12 +22,19 @@ export default function PolicyToggle() {
 
   async function fetchPolicies() {
     const { data, error } = await supabase.from('policies').select('*').order('tool_name')
-    if (!error && data) setPolicies(data)
+    if (error) {
+      console.error('[PolicyToggle] Failed to fetch policies:', error.message)
+      return
+    }
+    if (data) setPolicies(data)
     setLoading(false)
   }
 
   async function updatePolicy(tool_name, action) {
-    await supabase.from('policies').upsert({ tool_name, action })
+    const { error } = await supabase.from('policies').upsert({ tool_name, action })
+    if (error) {
+      console.error('[PolicyToggle] Failed to update policy:', error.message)
+    }
   }
 
   if (loading) return <div className="text-neutral-500 animate-pulse text-sm">Loading policies...</div>
@@ -40,6 +46,7 @@ export default function PolicyToggle() {
           <div className="flex items-center justify-between">
             <span className="font-mono text-sm text-neutral-300 group-hover:text-indigo-300 transition-colors">{p.tool_name}</span>
             <select
+              id={`policy-${p.tool_name}`}
               value={p.action}
               onChange={(e) => updatePolicy(p.tool_name, e.target.value)}
               className={`text-xs font-bold py-1 px-2 rounded outline-none cursor-pointer appearance-none ${

@@ -1,11 +1,15 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const MCP_SERVERS = [
     {
         name:    "secretvault",
         command: "node",
-        args:    ["../custom-mcp-server/server.js"]
+        args:    [path.resolve(__dirname, "../../../custom-mcp-server/server.js")]
     },
     {
         name:    "exa",
@@ -14,7 +18,13 @@ const MCP_SERVERS = [
     }
 ];
 
+// Cache: connect once at startup, reuse for every request
+let _cachedTools = null;
+
 export async function discoverTools() {
+    // Return cached tools if already connected
+    if (_cachedTools) return _cachedTools;
+
     const allTools = [];
 
     for (const srv of MCP_SERVERS) {
@@ -30,6 +40,7 @@ export async function discoverTools() {
         }
     }
 
+    _cachedTools = allTools;
     return allTools;
 }
 

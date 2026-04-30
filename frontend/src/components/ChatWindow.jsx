@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, AlertTriangle, Loader2 } from 'lucide-react'
+import API_BASE from '../lib/api'
 
-export default function ChatWindow() {
-  const [messages, setMessages] = useState([])
+export default function ChatWindow({ messages, setMessages }) {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef(null)
@@ -17,18 +17,25 @@ export default function ChatWindow() {
 
   async function sendMessage(e) {
     e.preventDefault()
-    if (!input.trim()) return
+    if (!input.trim() || loading) return
 
     const userMsg = { role: 'user', content: input, id: Date.now() }
-    setMessages(prev => [...prev, userMsg])
+    const updatedMessages = [...messages, userMsg]
+    setMessages(updatedMessages)
     setInput('')
     setLoading(true)
 
+    // Build history from past user/bot messages (skip system errors)
+    const history = updatedMessages
+      .filter(m => m.role === 'user' || m.role === 'bot')
+      .slice(0, -1) // exclude the current message (sent as prompt)
+      .map(m => ({ role: m.role, content: m.content }))
+
     try {
-      const res = await fetch('http://localhost:3000/api/chat', {
+      const res = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: userMsg.content })
+        body: JSON.stringify({ prompt: userMsg.content, history })
       })
       
       const data = await res.json()
@@ -37,28 +44,28 @@ export default function ChatWindow() {
         setMessages(prev => [...prev, {
           role: 'system',
           error: true,
-          content: data.message,
+          content: data.message || 'Request blocked by security policy.',
           id: Date.now()
         }])
-      } else if (res.status === 200) {
+      } else if (res.ok) {
         setMessages(prev => [...prev, {
           role: 'bot',
-          content: data.reply,
+          content: data.reply || 'No response from agent.',
           stats: { in: data.inputTokens, out: data.outputTokens, cost: data.costUsd },
           id: Date.now()
         }])
       } else {
-        setMessages(prev => [...prev, { role: 'system', error: true, content: data.error || 'Server error', id: Date.now() }])
+        setMessages(prev => [...prev, { role: 'system', error: true, content: data.error || `Server error (${res.status})`, id: Date.now() }])
       }
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'system', error: true, content: 'Failed to connect to backend', id: Date.now() }])
+      setMessages(prev => [...prev, { role: 'system', error: true, content: `Failed to connect to backend at ${API_BASE}`, id: Date.now() }])
     }
     setLoading(false)
   }
 
   return (
     <div className="flex flex-col h-full flex-1 overflow-hidden relative">
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-neutral-800">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-neutral-500 gap-4 opacity-50">
             <Bot className="w-16 h-16" />
@@ -114,6 +121,7 @@ export default function ChatWindow() {
       <div className="p-4 bg-neutral-900 border-t border-neutral-800">
         <form onSubmit={sendMessage} className="relative flex items-center">
           <input
+            id="chat-input"
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
@@ -122,6 +130,7 @@ export default function ChatWindow() {
             disabled={loading}
           />
           <button 
+            id="chat-send"
             type="submit" 
             disabled={loading || !input.trim()}
             className="absolute right-2 p-2 bg-indigo-500 hover:bg-indigo-400 disabled:bg-neutral-800 disabled:text-neutral-600 text-white rounded-lg transition-colors"

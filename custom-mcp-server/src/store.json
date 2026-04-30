@@ -1,0 +1,30 @@
+{
+  "secrets": {},
+  "auditLog": [
+    {
+      "secretName": "db-password",
+      "action": "STORE",
+      "timestamp": "2026-04-30T15:40:16.103Z"
+    },
+    {
+      "secretName": "db-password",
+      "action": "RETRIEVE",
+      "timestamp": "2026-04-30T15:42:28.351Z"
+    },
+    {
+      "secretName": "db-password",
+      "action": "REVOKE",
+      "timestamp": "2026-04-30T15:48:49.005Z"
+    },
+    {
+      "secretName": "db-password",
+      "action": "STORE",
+      "timestamp": "2026-04-30T15:54:45.508Z"
+    },
+    {
+      "secretName": "db-password",
+      "action": "REVOKE",
+      "timestamp": "2026-04-30T15:58:40.099Z"
+    }
+  ]
+}
