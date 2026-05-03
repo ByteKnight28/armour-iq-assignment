@@ -1,26 +1,61 @@
 import crypto from "crypto";
-import { readFileSync, writeFileSync, existsSync } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const STORE_PATH = path.join(__dirname, "store.json");
+// Load environment variables (will pick up from backend if run as child process, or local .env if standalone)
+dotenv.config();
+
 const ALGORITHM  = "aes-256-gcm";
 const SALT       = "armouriq-secretvault-v1";
 const KEY        = crypto.scryptSync(process.env.VAULT_KEY ?? "default-dev-key", SALT, 32);
 
-function loadStore() {
-    if (!existsSync(STORE_PATH)) return { secrets: {}, auditLog: [] };
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error("[Vault] Missing SUPABASE_URL or SUPABASE_ANON_KEY environment variables.");
+    process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+export async function loadStore() {
     try {
-        return JSON.parse(readFileSync(STORE_PATH, "utf-8"));
-    } catch {
-        // If store.json is corrupted, start fresh
+        const { data, error } = await supabase
+            .from("vault_store")
+            .select("state")
+            .eq("id", 1)
+            .single();
+
+        if (error) {
+            console.error("[Vault] Error loading store from Supabase:", error.message);
+            return { secrets: {}, auditLog: [] };
+        }
+
+        if (data && data.state) {
+            return data.state;
+        }
+        
+        return { secrets: {}, auditLog: [] };
+    } catch (err) {
+        console.error("[Vault] Exception loading store:", err.message);
         return { secrets: {}, auditLog: [] };
     }
 }
 
-function saveStore(store) {
-    writeFileSync(STORE_PATH, JSON.stringify(store, null, 2));
+export async function saveStore(store) {
+    try {
+        const { error } = await supabase
+            .from("vault_store")
+            .upsert({ id: 1, state: store });
+            
+        if (error) {
+            console.error("[Vault] Error saving store to Supabase:", error.message);
+        }
+    } catch (err) {
+        console.error("[Vault] Exception saving store:", err.message);
+    }
 }
 
 export function encrypt(plaintext) {
@@ -46,5 +81,3 @@ export function decrypt(encryptedObj) {
     ]);
     return decrypted.toString("utf8");
 }
-
-export { loadStore, saveStore };

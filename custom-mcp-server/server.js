@@ -11,7 +11,7 @@ server.tool(
     { name: z.string(), value: z.string(), description: z.string().optional() },
     async (args) => {
         try {
-            return { content: [{ type: "text", text: JSON.stringify(storeSecret(args)) }] };
+            return { content: [{ type: "text", text: JSON.stringify(await storeSecret(args)) }] };
         } catch (err) {
             return { content: [{ type: "text", text: JSON.stringify({ success: false, error: err.message }) }] };
         }
@@ -24,7 +24,7 @@ server.tool(
     { name: z.string() },
     async (args) => {
         try {
-            return { content: [{ type: "text", text: JSON.stringify(retrieveSecret(args)) }] };
+            return { content: [{ type: "text", text: JSON.stringify(await retrieveSecret(args)) }] };
         } catch (err) {
             return { content: [{ type: "text", text: JSON.stringify({ success: false, error: err.message }) }] };
         }
@@ -37,7 +37,7 @@ server.tool(
     { name: z.string(), new_value: z.string() },
     async (args) => {
         try {
-            return { content: [{ type: "text", text: JSON.stringify(rotateSecret(args)) }] };
+            return { content: [{ type: "text", text: JSON.stringify(await rotateSecret(args)) }] };
         } catch (err) {
             return { content: [{ type: "text", text: JSON.stringify({ success: false, error: err.message }) }] };
         }
@@ -50,7 +50,7 @@ server.tool(
     { name: z.string() },
     async (args) => {
         try {
-            return { content: [{ type: "text", text: JSON.stringify(auditAccess(args)) }] };
+            return { content: [{ type: "text", text: JSON.stringify(await auditAccess(args)) }] };
         } catch (err) {
             return { content: [{ type: "text", text: JSON.stringify({ success: false, error: err.message }) }] };
         }
@@ -63,7 +63,7 @@ server.tool(
     { name: z.string() },
     async (args) => {
         try {
-            return { content: [{ type: "text", text: JSON.stringify(revokeSecret(args)) }] };
+            return { content: [{ type: "text", text: JSON.stringify(await revokeSecret(args)) }] };
         } catch (err) {
             return { content: [{ type: "text", text: JSON.stringify({ success: false, error: err.message }) }] };
         }
