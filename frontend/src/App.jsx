@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Routes, Route, Link, useLocation } from 'react-router-dom'
-import { Shield, Activity } from 'lucide-react'
+import { MessageSquare, Activity, Zap } from 'lucide-react'
 import Dashboard from './pages/Dashboard.jsx'
 import Logs from './pages/Logs.jsx'
 
@@ -8,46 +8,64 @@ function App() {
   const location = useLocation();
   const [chatMessages, setChatMessages] = useState([]);
 
+  const navItems = [
+    { to: '/', label: 'Chat', icon: MessageSquare },
+    { to: '/logs', label: 'Logs', icon: Activity },
+  ];
+
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex font-sans selection:bg-indigo-500/30">
+    <div className="min-h-screen flex font-sans">
       
       {/* Sidebar */}
-      <aside className="w-64 border-r border-neutral-800 bg-neutral-900/50 p-6 flex flex-col gap-6">
-        <div className="flex items-center gap-3 text-indigo-400 font-bold text-xl tracking-tight">
-          <Shield className="w-6 h-6" />
-          <span>Armour IQ</span>
+      <aside className="w-60 bg-[#111113] border-r-[2.5px] border-[#1e1e22] flex flex-col">
+        
+        {/* Logo */}
+        <div className="px-5 py-6 border-b-[2.5px] border-[#1e1e22]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#7c3aed] flex items-center justify-center shadow-[0_4px_12px_rgba(124,58,237,0.35)]">
+              <Zap className="w-5 h-5 text-white" strokeWidth={2.5} />
+            </div>
+            <div>
+              <h1 className="text-[15px] font-bold tracking-tight text-white leading-none">MCP Chatbot</h1>
+              <p className="text-[11px] text-[#71717a] mt-0.5 tracking-wide">control panel</p>
+            </div>
+          </div>
         </div>
         
-        <nav className="flex flex-col gap-2 mt-4">
-          <Link 
-            to="/" 
-            className={`px-4 py-2 rounded-lg flex items-center gap-3 transition-colors ${location.pathname === '/' ? 'bg-indigo-500/10 text-indigo-400' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50'}`}
-          >
-            <Shield className="w-4 h-4" />
-            Dashboard
-          </Link>
-          <Link 
-            to="/logs" 
-            className={`px-4 py-2 rounded-lg flex items-center gap-3 transition-colors ${location.pathname === '/logs' ? 'bg-indigo-500/10 text-indigo-400' : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50'}`}
-          >
-            <Activity className="w-4 h-4" />
-            Audit Logs
-          </Link>
+        {/* Nav */}
+        <nav className="flex flex-col gap-1 px-3 py-4">
+          {navItems.map(({ to, label, icon: Icon }) => {
+            const isActive = location.pathname === to;
+            return (
+              <Link
+                key={to}
+                to={to}
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14px] font-semibold transition-all duration-150 ${
+                  isActive
+                    ? 'bg-[#7c3aed]/12 text-[#a78bfa] border-[2px] border-[#7c3aed]/25'
+                    : 'text-[#a1a1aa] hover:text-white hover:bg-[#1a1a1e] border-[2px] border-transparent'
+                }`}
+              >
+                <Icon className="w-[18px] h-[18px]" strokeWidth={2} />
+                {label}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="mt-auto">
-          <div className="p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/20">
-            <h4 className="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-2">Agent Status</h4>
-            <div className="flex items-center gap-2 text-sm text-neutral-300">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse"></div>
-              Online & Guarded
+        {/* Status */}
+        <div className="mt-auto p-4">
+          <div className="card-blocky !p-3.5 !border-[#27272a]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></div>
+              <span className="text-[13px] font-semibold text-[#a1a1aa]">Agent Online</span>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto bg-gradient-to-br from-neutral-950 to-neutral-900">
+      {/* Main */}
+      <main className="flex-1 overflow-auto bg-[#0e0e10]">
         <Routes>
           <Route path="/" element={<Dashboard chatMessages={chatMessages} setChatMessages={setChatMessages} />} />
           <Route path="/logs" element={<Logs />} />

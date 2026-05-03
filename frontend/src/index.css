@@ -1,5 +1,51 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* ── Custom utilities ── */
+@layer utilities {
+  .card-blocky {
+    background: #141416;
+    border: 2.5px solid #2a2a2e;
+    border-radius: 14px;
+    padding: 1.25rem;
+  }
+  .card-blocky:hover {
+    border-color: #3a3a40;
+  }
+  .btn-chunky {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  }
+  .btn-chunky:hover {
+    transform: translateY(-1px);
+  }
+  .btn-chunky:active {
+    transform: translateY(1px);
+  }
+}
+
+/* ── Selection style ── */
+::selection {
+  background: rgba(168, 130, 255, 0.25);
+}
+
+/* ── Base body ── */
+body {
+  background: #0e0e10;
+  color: #e4e4e7;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
 }

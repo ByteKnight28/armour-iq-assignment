@@ -65,75 +65,83 @@ export default function ChatWindow({ messages, setMessages }) {
 
   return (
     <div className="flex flex-col h-full flex-1 overflow-hidden relative">
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      {/* Messages area */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-5">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-neutral-500 gap-4 opacity-50">
-            <Bot className="w-16 h-16" />
-            <p>Ready to securely handle your requests.</p>
+          <div className="flex flex-col items-center justify-center h-full gap-3" style={{ opacity: 0.35 }}>
+            <Bot className="w-14 h-14 text-[#52525b]" strokeWidth={1.5} />
+            <p className="text-[14px] text-[#52525b] font-medium">send a message to get started</p>
           </div>
         )}
 
         {messages.map((m) => (
-          <div key={m.id} className={`flex gap-4 max-w-[85%] ${m.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
+          <div key={m.id} className={`flex gap-3 max-w-[82%] ${m.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}>
             
-            <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center shadow-lg ${
-              m.role === 'user' ? 'bg-indigo-500/20 text-indigo-400' :
-              m.error ? 'bg-rose-500/20 text-rose-400' :
-              'bg-emerald-500/20 text-emerald-400'
+            {/* Avatar */}
+            <div className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center ${
+              m.role === 'user' ? 'bg-[#7c3aed] text-white' :
+              m.error ? 'bg-[#dc2626] text-white' :
+              'bg-[#27272a] text-[#a1a1aa]'
             }`}>
-              {m.role === 'user' ? <User className="w-4 h-4" /> : m.error ? <AlertTriangle className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+              {m.role === 'user' ? <User className="w-4 h-4" strokeWidth={2.5} /> : m.error ? <AlertTriangle className="w-4 h-4" strokeWidth={2.5} /> : <Bot className="w-4 h-4" strokeWidth={2.5} />}
             </div>
 
-            <div className={`flex flex-col gap-1 ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
-              <div className={`px-5 py-3 rounded-2xl whitespace-pre-wrap text-sm leading-relaxed ${
-                m.role === 'user' ? 'bg-indigo-500 text-white rounded-tr-sm shadow-[0_4px_14px_0_rgba(99,102,241,0.39)]' :
-                m.error ? 'bg-rose-500/10 border border-rose-500/30 text-rose-200 rounded-tl-sm' :
-                'bg-neutral-800 text-neutral-200 border border-neutral-700/50 rounded-tl-sm shadow-xl'
+            {/* Bubble */}
+            <div className={`flex flex-col gap-1.5 ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
+              <div className={`px-4 py-3 text-[14px] leading-relaxed whitespace-pre-wrap ${
+                m.role === 'user'
+                  ? 'bg-[#7c3aed] text-white rounded-2xl rounded-tr-md shadow-[0_2px_10px_rgba(124,58,237,0.3)]'
+                  : m.error
+                    ? 'bg-[#2a1215] text-[#fca5a5] border-[2px] border-[#dc2626]/30 rounded-2xl rounded-tl-md'
+                    : 'bg-[#1a1a1e] text-[#d4d4d8] border-[2px] border-[#27272a] rounded-2xl rounded-tl-md'
               }`}>
                 {m.content}
               </div>
               
               {m.stats && (
-                <div className="flex gap-3 text-[10px] text-neutral-500 font-mono mt-1 px-2">
-                  <span>In: {m.stats.in}</span>
-                  <span>Out: {m.stats.out}</span>
-                  <span className="text-emerald-500/70">Cost: ${Number(m.stats.cost).toFixed(5)}</span>
+                <div className="flex gap-3 text-[11px] text-[#52525b] font-mono px-1">
+                  <span>↑ {m.stats.in}</span>
+                  <span>↓ {m.stats.out}</span>
+                  <span className="text-emerald-500/70">${Number(m.stats.cost).toFixed(5)}</span>
                 </div>
               )}
             </div>
           </div>
         ))}
+
+        {/* Loading indicator */}
         {loading && (
-          <div className="flex gap-4">
-            <div className="w-8 h-8 shrink-0 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-400">
+          <div className="flex gap-3">
+            <div className="w-8 h-8 shrink-0 rounded-lg bg-[#27272a] flex items-center justify-center text-[#71717a]">
               <Loader2 className="w-4 h-4 animate-spin" />
             </div>
-            <div className="px-5 py-3 rounded-2xl bg-neutral-800 border border-neutral-700/50 rounded-tl-sm flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-neutral-500 rounded-full animate-bounce"></span>
-              <span className="w-1.5 h-1.5 bg-neutral-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
-              <span className="w-1.5 h-1.5 bg-neutral-500 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
+            <div className="px-4 py-3 rounded-2xl rounded-tl-md bg-[#1a1a1e] border-[2px] border-[#27272a] flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-[#52525b] rounded-full animate-bounce"></span>
+              <span className="w-2 h-2 bg-[#52525b] rounded-full animate-bounce" style={{animationDelay: '0.15s'}}></span>
+              <span className="w-2 h-2 bg-[#52525b] rounded-full animate-bounce" style={{animationDelay: '0.3s'}}></span>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 bg-neutral-900 border-t border-neutral-800">
+      {/* Input bar */}
+      <div className="p-4 bg-[#111113] border-t-[2.5px] border-[#1e1e22]">
         <form onSubmit={sendMessage} className="relative flex items-center">
           <input
             id="chat-input"
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder="Instruct the agent..."
-            className="w-full bg-neutral-950 border border-neutral-800 focus:border-indigo-500 rounded-xl py-3 pl-4 pr-12 text-sm outline-none transition-colors shadow-inner text-neutral-200 placeholder:text-neutral-600"
+            placeholder="type a message..."
+            className="w-full bg-[#0e0e10] border-[2.5px] border-[#27272a] focus:border-[#7c3aed] rounded-xl py-3 pl-4 pr-14 text-[14px] outline-none transition-colors text-[#e4e4e7] placeholder:text-[#3f3f46] font-medium"
             disabled={loading}
           />
           <button 
             id="chat-send"
             type="submit" 
             disabled={loading || !input.trim()}
-            className="absolute right-2 p-2 bg-indigo-500 hover:bg-indigo-400 disabled:bg-neutral-800 disabled:text-neutral-600 text-white rounded-lg transition-colors"
+            className="absolute right-2.5 w-9 h-9 flex items-center justify-center bg-[#7c3aed] hover:bg-[#6d28d9] disabled:bg-[#27272a] disabled:text-[#52525b] text-white rounded-lg transition-all duration-150 active:scale-95"
           >
             <Send className="w-4 h-4" />
           </button>

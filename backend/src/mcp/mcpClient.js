@@ -14,7 +14,7 @@ const MCP_SERVERS = [
     {
         name:    "exa",
         command: "npx",
-        args:    ["-y", "exa-mcp-server", "--tools=web_search_exa"]
+        args:    ["exa-mcp-server", "--tools=web_search_exa"]
     }
 ];
 
