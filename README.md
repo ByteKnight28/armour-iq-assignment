@@ -32,7 +32,7 @@ A React + Vite SPA with custom "blocky/chunky" UI styling.
 ### 3. Custom MCP Server (`/custom-mcp-server`)
 A standalone MCP server that the backend connects to.
 - Simulates a secure vault using Node.js `crypto` (AES-256-GCM).
-- Maintains its own encrypted storage state and audit trail.
+- Backs up encrypted storage state and audit logs persistently to Supabase.
 - Tools exposed: `store_secret`, `retrieve_secret`, `rotate_secret`, `audit_access`, `revoke_secret`.
 
 ---
@@ -81,6 +81,14 @@ CREATE TABLE approval_queue (
     status      TEXT DEFAULT 'PENDING',
     decided_at  TIMESTAMPTZ
 );
+
+-- Secret Vault persistent storage
+CREATE TABLE vault_store (
+    id INT PRIMARY KEY DEFAULT 1,
+    state JSONB NOT NULL DEFAULT '{"secrets": {}, "auditLog": []}'::jsonb
+);
+
+INSERT INTO vault_store (id, state) VALUES (1, '{"secrets": {}, "auditLog": []}'::jsonb);
 
 -- Seed default policies
 INSERT INTO policies (tool_name, action) VALUES
