@@ -29,7 +29,7 @@ export async function discoverTools() {
 
     for (const srv of MCP_SERVERS) {
         try {
-            const transport = new StdioClientTransport({ command: srv.command, args: srv.args });
+            const transport = new StdioClientTransport({ command: srv.command, args: srv.args, env: process.env });
             const client    = new Client({ name: "agent", version: "1.0.0" }, { capabilities: {} });
             await client.connect(transport);
             const { tools } = await client.listTools();
